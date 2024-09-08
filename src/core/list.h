@@ -57,6 +57,7 @@ extern int   nni_list_active(nni_list *, void *);
 extern int   nni_list_empty(nni_list *);
 extern int   nni_list_node_active(nni_list_node *);
 extern void  nni_list_node_remove(nni_list_node *);
+extern void  nni_list_move(nni_list *src, nni_list *dst);
 
 #define NNI_LIST_FOREACH(l, it) \
 	for (it = nni_list_first(l); it != NULL; it = nni_list_next(l, it))

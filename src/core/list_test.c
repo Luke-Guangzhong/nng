@@ -115,9 +115,75 @@ test_list_two_items(void)
 	NUTS_TRUE(nni_list_prev(&a, &item2) == NULL);
 }
 
+static void
+test_list_move(void)
+{
+	nni_list  a;
+	nni_list  b;
+	my_struct item1;
+	my_struct item2;
+	my_struct item3;
+
+	NNI_LIST_INIT(&a, my_struct, node_a);
+	NNI_LIST_INIT(&b, my_struct, node_a);
+
+	NNI_LIST_NODE_INIT(&item1.node_a);
+	NNI_LIST_NODE_INIT(&item2.node_a);
+	NNI_LIST_NODE_INIT(&item3.node_a);
+
+	// try empty list
+	nni_list_move(&a, &b);
+	NUTS_TRUE(nni_list_empty(&a));
+	NUTS_TRUE(nni_list_empty(&b));
+	nni_list_append(&a, &item1);
+	nni_list_append(&a, &item2);
+
+	NUTS_TRUE(nni_list_first(&a) == &item1);
+	NUTS_TRUE(nni_list_last(&a) == &item2);
+	NUTS_TRUE(nni_list_next(&a, &item1) == &item2);
+	NUTS_TRUE(nni_list_prev(&a, &item2) == &item1);
+
+	nni_list_move(&a, &b);
+	NUTS_TRUE(nni_list_empty(&a));
+
+	NUTS_TRUE(nni_list_first(&b) == &item1);
+	NUTS_TRUE(nni_list_last(&b) == &item2);
+	NUTS_TRUE(nni_list_next(&b, &item1) == &item2);
+	NUTS_TRUE(nni_list_prev(&b, &item2) == &item1);
+	NUTS_TRUE(nni_list_next(&b, &item2) == NULL);
+	NUTS_TRUE(nni_list_prev(&b, &item1) == NULL);
+
+	nni_list_append(&a, &item3);
+	nni_list_move(&a, &b);
+
+	// remove the first
+	NUTS_TRUE(nni_list_empty(&a));
+	NUTS_TRUE(nni_list_first(&b) == &item1);
+	NUTS_TRUE(nni_list_last(&b) == &item3);
+	NUTS_TRUE(nni_list_next(&b, &item1) == &item2);
+	NUTS_TRUE(nni_list_prev(&b, &item2) == &item1);
+	NUTS_TRUE(nni_list_next(&b, &item2) == &item3);
+	NUTS_TRUE(nni_list_prev(&b, &item3) == &item2);
+	NUTS_TRUE(nni_list_next(&b, &item3) == NULL);
+	NUTS_TRUE(nni_list_prev(&b, &item1) == NULL);
+
+	// copy empty does nothign
+	nni_list_move(&a, &b);
+	NUTS_TRUE(nni_list_empty(&a));
+	NUTS_TRUE(nni_list_first(&b) == &item1);
+	NUTS_TRUE(nni_list_last(&b) == &item3);
+	NUTS_TRUE(nni_list_next(&b, &item1) == &item2);
+	NUTS_TRUE(nni_list_prev(&b, &item2) == &item1);
+	NUTS_TRUE(nni_list_next(&b, &item2) == &item3);
+	NUTS_TRUE(nni_list_prev(&b, &item3) == &item2);
+	NUTS_TRUE(nni_list_next(&b, &item3) == NULL);
+	NUTS_TRUE(nni_list_prev(&b, &item1) == NULL);
+}
+
 NUTS_TESTS = {
-    { "list empty", test_list_init_empty },
-    { "list add one", test_list_add_item },
-    { "list add two", test_list_two_items },
-    { NULL, NULL },
+	{ "list empty", test_list_init_empty },
+	{ "list add one", test_list_add_item },
+	{ "list add two", test_list_two_items },
+	{ "list move", test_list_move },
+	{ NULL, NULL },
 };

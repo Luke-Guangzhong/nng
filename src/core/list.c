@@ -174,3 +174,26 @@ nni_list_node_remove(nni_list_node *node)
 		node->ln_prev          = NULL;
 	}
 }
+
+// Move the entire set of elements from src to the end of dst.
+// This is an efficient copy.  The lists must have comopatible initializations.
+void
+nni_list_move(nni_list *src, nni_list *dst)
+{
+	nni_list_node *tail = dst->ll_head.ln_prev;
+	NNI_ASSERT(dst->ll_offset == src->ll_offset);
+
+	if (nni_list_empty(src)) {
+		return;
+	}
+	// append to the tail
+	tail->ln_next          = src->ll_head.ln_next;
+	tail->ln_next->ln_prev = tail;
+
+	// and patch the back pointers
+	dst->ll_head.ln_prev          = src->ll_head.ln_prev;
+	dst->ll_head.ln_prev->ln_next = &dst->ll_head;
+
+	// and close off the original list
+	src->ll_head.ln_next = src->ll_head.ln_prev = &src->ll_head;
+}
