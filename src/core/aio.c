@@ -449,7 +449,10 @@ nni_aio_finish_impl(
 	aio->a_use_expire = false;
 	nni_mtx_unlock(&eq->eq_mtx);
 
-	if (sync) {
+	// If there is no callback, we can complete synchronously.
+	// If there's a callback, we have to be careful because
+	// the callback could try to acquire a lock held by the submitter.
+	if (sync || aio->a_task.task_cb == NULL) {
 		nni_task_exec(&aio->a_task);
 	} else {
 		nni_task_dispatch(&aio->a_task);
